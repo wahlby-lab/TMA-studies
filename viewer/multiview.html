@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TissUUmaps</title>
+    <!-- Required meta tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--OpenSeadragon-->		
+    <script src="js/openseadragon/openseadragon.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="js/svg-overlay/openseadragon-svg-overlay.js"></script>
+    <script src="js/utils/JSONUtils.js"></script>
+    <script src="js/utils/overlayUtils.js"></script>
+    <script src="js/utils/markerUtils.js"></script>
+    <script src="js/utils/regionUtils.js"></script>
+    <script src="js/utils/dataUtils.js"></script>
+    <script src="js/utils/interfaceUtils.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="css/tmcpmain.min.css">
+    <link rel="stylesheet" href="css/TissueMapsTheme.css" >
+</head>
+<body>
+    
+    <div class="navbar navbar-default">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+			<a class="navbar-brand" href="https://tissuumaps.research.it.uu.se/"><img 
+                style="height:50px; margin-top:-15px; overflow: visible; z-index: 9999;"
+                src="uulogowhitetuum.png"> </a>
+        </div>
+        <div class="navbar-collapse collapse navbar-responsive-collapse">
+            <ul class="nav navbar-nav">
+					<li class="nav-item"><a id="img1name"> Image1</a></li>	
+				<li class=" nav-item"><a id="img2name"> Image2</a></li>	
+            </ul> 
+        </div>
+    </div>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6"> 
+                <div id="fixed_viewer"></div>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6"> 
+                <div id="moving_viewer"></div>
+            </div> 
+        </div>
+        <div class="row" id="inforow">
+
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding: 15px">                
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Options</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row" style="padding-bottom: 5px">
+                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <input style="display: inline" type="checkbox" id="synczoom" > Sync zoom<br>
+                                </div>
+                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <input style="display: inline" type="checkbox" id="syncpan" > Sync pan<br>
+                                </div>
+                                
+                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <button id="pointstojson" class="btn btn-primary" type="button"> Download</button>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-bottom: 5px">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <!--<input style="display: inline" type="checkbox" id="drawmode" > Draw mode ON (EXPERIMENTAL)<br>-->
+                                    <input class="form-control-file form-control form-control-sm" type="file" id="data_files_import" name="files[]">
+                                        
+                                </div>
+                                <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                                    <!--<input style="display: inline" type="checkbox" id="drawmode" > Draw mode ON (EXPERIMENTAL)<br>-->
+                                    <button id="jsontodata" class="btn btn-primary" type="button"> Import </button>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-bottom: 5px">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                </div>
+                                <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                                    <!--<input style="display: inline" type="checkbox" id="drawmode" > Draw mode ON (EXPERIMENTAL)<br>-->
+                                    <button id="drawregions_btn" class="btn btn-primary" type="button"> Regions </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div id="data_input_csv" style="margin-bottom: 5px;">
+                                        <label for="data_input_csv">Choose a CSV:</label>
+                                        <input type="file" id="data_csv" name="data_csv" accept=".csv,.tsv,.txt">
+                                        <script type="text/javascript">
+                                            d3.select("#data_csv")
+                                                .on("change", function () {
+                                                    var file = d3.event.target.files[0];
+                                                    if (file) {
+                                                        var reader = new FileReader();
+                                                        reader.onloadend = function (evt) {
+                                                            var dataUrl = evt.target.result;
+                                                            dataUtils.readCSV(dataUrl);
+                                                        };
+                                                        reader.readAsDataURL(file);
+                                                    }
+                                                });
+                                        </script>
+                                        
+                                    </div>
+                                </div>
+                                <!--<div class="row" style="padding: 15px">
+                                <textarea class="form-control" rows="10" id="jsonpoints"></textarea>-->
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <label for="url_prefix">Image location</label>
+                                    <textarea class="form-control" rows="1" id="url_prefix"></textarea>
+                                </div>
+                            </div>
+                        </div>                    
+                    </div>                
+            </div>
+
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style="padding: 15px">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Fixed reference protein</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group ">
+                            <label for="select_case_fixed">Case</label>
+                            <p id="case_fixed" style="visibility: hidden; display: none"></p>
+                            <select id="select_case_fixed" class="form-control">
+                                <option value="0">...</option>
+                            </select>
+                            <label for="select_block_fixed">Block</label>
+                            <p id="block_fixed" style="visibility: hidden; display: none"></p>
+                            <select id="select_block_fixed" class="form-control">
+                                <option value="0">...</option>
+                            </select>
+                            <label for="select_protein_fixed">Protein</label>
+                            <p id="protein_fixed" style="visibility: hidden; display: none"></p>
+                            <select id="select_protein_fixed" class="form-control">
+                                <option value="0">...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding: 15px">               
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Region management</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"">
+                                <select id="select_region" class="form-control" >
+                                    <option value="0">...</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" style="padding-top: 10px;">
+                                    <label>
+                                        <input style="display: inline"  type="radio" name="optionsRadios" id="radio_fixed" value="fixed" >
+                                        Fixed
+                                    </label>
+                               
+                                    <label>
+                                        <input style="display: inline"  type="radio" name="optionsRadios" id="radio_moving" value="moving" checked="">
+                                        Moving
+                                    </label>
+                                
+                            </div>
+                            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                <button id="btn_region_delete" class="btn btn-primary" type="button"> Delete </button>
+                            </div>
+                                  
+                        </div>
+                        <div class="row" style="padding-top: 10px">
+                                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                             
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                        <button id="btn_mrup" class="btn btn-primary" type="button"> &and; </button>
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                             
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                        <button id="btn_mrleft" class="btn btn-primary" type="button"> &lt; </button>
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                        <button id="btn_mrright" class="btn btn-primary" type="button"> &gt; </button>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                        
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                        <button id="btn_mrdown" class="btn btn-primary" type="button"> &or; </button>
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                </div>                
+            </div>
+
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style="padding: 15px">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Moving protein</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group ">
+                            <label for="select_protein_moving">Protein</label>
+                            <select id="select_protein_moving" class="form-control" >
+                                <option value="0">...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+<a id="hiddena" style="visibility: hidden; display:none;" ></a>
+</body>
+<script src="js/appbase.js"></script>
+<script>
+    $(document).ready(function() {
+        tmcpoints.init();
+    });  
+</script>  
+</html>
