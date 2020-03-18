@@ -24,7 +24,7 @@ We also asume that the slides are converted to [DeepZoom pyramids](https://githu
 The following images show the formats expected.
 
 ![Using TissUUmaps](https://github.com/wahlby-lab/TMA-studies/blob/master/misc/TissUUmaps.gif)
-![JSON and CSV formats](https://github.com/wahlby-lab/TMA-studies/blob/master/misc/JSON-CSV.jpg)
+![JSON and CSV formats](https://github.com/wahlby-lab/TMA-studies/blob/master/misc/JSON-CSV-example.jpg)
 
 The CSV has to have the columns: protein,block,format,case,prefix,filename,jsonname
 The JSON should contain all the regions (cores) per protein (can be more than 2 proteins) and each protein contains the property of "moving" or "fixed" which tells which is the reference protein slide that guides the registrtion.
