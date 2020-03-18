@@ -39,3 +39,17 @@ To begin, make sure you specify in the script:
 * The location where everything will be saved
 * The location (if any) of a palette for the colors you want to unmix (one per stain) If no location is given, we use a default color for H and one for DAB
 * Resolution level
+
+Step 1 - Unmixing
+-----------------
+In this first step the program will go through the JSON file, finding the regions (cores) in every slide and creating an individual RGB image of the cores. These images will be unmixed with the information available, either a palette or default values. The images will be saved.
+
+Step 2 - Registration
+-----------------
+In this second step, we use the H stain
+
+Step 3 - Wrapping up
+-----------------
+
+
+
