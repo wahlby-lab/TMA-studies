@@ -6,7 +6,7 @@ This is a project to streamline the alignment of cores coming from different TMA
 The slides are consecutive and each is stained for a different protein using IHC.
 
 TissUUmaps
-==========
+----------
 
 This code is adapted to our problem and it is adaptable to similar questions.
 
@@ -27,4 +27,15 @@ Each region contains the spatial information of a core, such as points in pixels
 3 Steps for using the code
 ==========================
 
+The file [blockAlign.py](https://github.com/wahlby-lab/TMA-studies/blob/master/blockAlign.py) runs 3 steps:
+* Color unmixing
+* Registration
+* Creating co-expression map of the TMA
 
+To begin, make sure you specify in the script: 
+* The location of the CSv we mentioned before. 
+* The location of the JSON file with the core spatial information (specified within the CSV). 
+* The location of the DZI pyramids
+* The location where everything will be saved
+* The location (if any) of a palette for the colors you want to unmix (one per stain) If no location is given, we use a default color for H and one for DAB
+* Resolution level
