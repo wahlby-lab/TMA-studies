@@ -1,16 +1,23 @@
 TMA-studies
 ===========
 
-This is a project to streamline the alignment of cores coming from different TMA slides.
+This is a project to streamline the alignment of cores coming from different consecutive TMA slides stained for different proteins using IHC.
 
-The slides are consecutive and each is stained for a different protein using IHC.
+In this repository we cover the following topics:
+
+| <!-- -->       | <!-- -->               |
+|:--------------:|:----------------------:|
+| Unmixing       | Registration           |
+| Segmentation   | protein co-expression  |
+| Image analysis | Software               |
+
 
 TissUUmaps
 ----------
 
 This code is adapted to our problem and it is adaptable to similar questions.
 
-To use it, we asume the cores are selected using the [TissUUmaps viewer](https://github.com/wahlby-lab/TissUUmaps) to create a JSON file containing the information. If you don't want to use TissUUmaps we can still show you how to create the information file.
+To use it, we asume the cores are selected using the [TissUUmaps viewer](https://github.com/wahlby-lab/TissUUmaps) to create a JSON file containing the information. Examples below. TissUUmaps allows us to create a bounding polygon that can avoid artefacts such as folds or rips.
 
 We also asume that the slides are converted to [DeepZoom pyramids](https://github.com/wahlby-lab/TissUUmaps#How-to-start) and we expect a CSV file with the information of your experiment.
 
