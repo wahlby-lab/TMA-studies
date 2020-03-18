@@ -12,7 +12,7 @@ This code is adapted to our problem and it is adaptable to similar questions.
 
 To use it, we asume the cores are selected using the [TissUUmaps viewer](https://github.com/wahlby-lab/TissUUmaps) to create a JSON file containing the information. If you don't want to use TissUUmaps we can still show you how to create the information file.
 
-We also asume that the slides are converted to DeepZoom pyramids and we expect a CSV file with the information of your experiment.
+We also asume that the slides are converted to [DeepZoom pyramids](https://github.com/wahlby-lab/TissUUmaps#How-to-start) and we expect a CSV file with the information of your experiment.
 
 The following images show the formats expected.
 
