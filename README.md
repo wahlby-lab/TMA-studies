@@ -1,6 +1,30 @@
 TMA-studies
 ===========
 
-This code assumes that images are in DZI format or at least that they are tiled in levels where neighboring tiles are identified by the coordinates in their file names.
+This is a project to streamline the alignment of cores coming from different TMA slides.
 
-It also assumes that you created any annotations in the TissUUmaps viewer [TissUUmaps viewer](https://github.com/wahlby-lab/TissUUmaps)
+The slides are consecutive and each is stained for a different protein using IHC.
+
+TissUUmaps
+==========
+
+This code is adapted to our problem and it is adaptable to similar questions.
+
+To use it, we asume the cores are selected using the [TissUUmaps viewer](https://github.com/wahlby-lab/TissUUmaps) to create a JSON file containing the information. If you don't want to use TissUUmaps we can still show you how to create the information file.
+
+We also asume that the slides are converted to DeepZoom pyramids and we expect a CSV file with the information of your experiment.
+
+The following images show the formats expected.
+
+![Using TissUUmaps](https://github.com/wahlby-lab/TMA-studies/blob/master/misc/TissUUmaps.gif)
+![JSON and CSV formats](https://github.com/wahlby-lab/TMA-studies/blob/master/misc/JSON-CSV.jpg)
+
+The CSV has to have the columns: protein,block,format,case,prefix,filename,jsonname
+The JSON should contain all the regions (cores) per protein (can be more than 2 proteins) and each protein contains the property of "moving" or "fixed" which tells which is the reference protein slide that guides the registrtion.
+
+Each region contains the spatial information of a core, such as points in pixels, points in global coordinates, bounding boxes, an associated protein and a length. A color can be used in TissUUmaps to find the different cores visually.
+
+3 Steps for using the code
+==========================
+
+
