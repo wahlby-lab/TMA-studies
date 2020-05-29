@@ -280,7 +280,7 @@ class WSIRegions:
         stage=np.zeros(size,dtype=dtype)
         return stage
 
-    def createRegionImages(self, protein, case,block, data, dirname, colorProjector, effectivesize ,savestains=[2,0,1],savenames=["H","DAB","RGB","mask"],overwrite=False,whitebalance=False,debug=False):
+    def createRegionImages(self, protein, case,block, data, dirname, colorProjector, effectivesize ,savestains=[0,1,2,3],savenames=["H","DAB","RGB","mask"],overwrite=False,whitebalance=False,debug=False):
         #let's do this in a smart way because creating images takes time specially in hi res
         #first we check if we have to create color, if we selected not to create them, check if they exist
         #if they dont exit and we still need the stains then we have still to create the colored one
@@ -309,7 +309,7 @@ class WSIRegions:
                 regionimage=self.createRegionFromTiles(d,effectivesize,colorProjector, stain,colorexists=colorexists,overwrite=overwrite, whitebalance=whitebalance,debug=debug)
                  
                 if regionimage is not None:                  
-                    folder=self.mainSavePath
+                    folder=self.mainSavePath+savenames[stain]
                     if(not os.path.isdir(folder)):
                         print("creating ",folder)
                         os.makedirs(folder) 
@@ -332,5 +332,3 @@ class WSIRegions:
         #io.imsave(masknamef,mask)  
         #print("Saving mask for protein "+protein+region)
         return mask
-            
-            
