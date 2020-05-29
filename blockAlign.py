@@ -17,12 +17,12 @@ import json
 import numpy as np
 import json
 from skimage import io
-from skimage import transform as tf
-from scipy.linalg import orthogonal_procrustes
 from matplotlib.path import Path
 import pandas as pd
 import re
-import setupTransform #Alpha-AMD registration framework. To change parameters #like the number of iterations 
+import pyAlphaAMD as pamd  #Alpha-AMD registration framework. 
+#To change parameters #like the number of iterations 
+from pyAlphaAMD import setupTransform as st
 import WSILibs.processing as wsip
 import WSILibs.wsiregions as wsir
 import imagelibs.DZICalculator as DZI
@@ -30,15 +30,14 @@ import helperFunctions as hf #These are helper functions that don't change
 import logging
 import datetime
 
-
 #Steps:
 # 1) Do color separation and create the regions based on the info in the csv and json and dzis
 # 2) register such regions and apply to regions and masks
 # 3) put those regions together in a map
 
-doStep1=True
-doStep2=False
-doStep3=False
+doStep1=False
+doStep2=True
+doStep3=True
 
 #locations of images, csvs, dzis, jsons
 csvlocation=    "/location/TMA_ECAD_only.csv"
@@ -46,11 +45,19 @@ jsonlocation=   "/location/"
 pyramidlocation="/location/"
 savelocation=   "/location/tosaveat/"
 colorprofilelocation="/location/colorProfiles/" 
+
+csvlocation=    "/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/2B/TMA_CD44v6_ECAD.csv"
+jsonlocation=   "/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/2B/"
+pyramidlocation="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/pyramidsCase2/"
+savelocation=   "/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/exampleTMAstudies/"
+colorprofilelocation="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/2B/colorprofiles/" 
+
 #work with n levels below the maximum meaning dividing by 2, n number of times
-desiredlevel=1
+desiredlevel=3
 #stains, in this case H and DAB
-H=0; DAB=1
-stainnames=["H","DAB"]
+H=0; DAB=1; RGB=2; MASK=3
+stainnames=["H","DAB","RGB","mask"]
+savethesestains=[0,1,2,3]
 #need white balance?
 whitebalance=True
 
@@ -109,8 +116,8 @@ if doStep1:
                 colorProjectors[p]=cp        
             for i,row in iterate.iterrows():
                 acase=row["case"]; ablock=row["block"]
-                aprotein=row["protein"]; adzi=row["filename"]                
-                ajson=row["jsonname"]
+                aprotein=row["protein"]; adzi=row["filename"]; ajson=row["jsonname"]
+
 
                 print("acase,ablock,aprotein,adzi,ajson")
                 print(acase,ablock,aprotein,adzi,ajson)
@@ -140,7 +147,8 @@ if doStep1:
                 regionmaker.jsonregions=jsonfile
                 regionmaker.mainPath=dzitileloc+str(workinglevel)+os.sep
                 basename=adzi.replace(".dzi","_files"+os.sep+ablock+os.sep)
-                regionmaker.createRegionImages(aprotein,acase,ablock, regiondata, basename, colorProjectors[aprotein], twon,savestains=[2],overwrite=overwrite,whitebalance=whitebalance,debug=debug)
+                regionmaker.createRegionImages(aprotein,acase,ablock, regiondata, basename, colorProjectors[aprotein], 
+                    twon,savestains=savethesestains,overwrite=overwrite,whitebalance=whitebalance,debug=debug)
                             
     print("Region creation process finished")
 
@@ -185,18 +193,18 @@ if doStep2:
             transformations={}
 
             #temp whitelist
-            wl=[""]
-            bl=[""]
+            #wl=[""]
+            #bl=[""]
             #loop thorugh regions which are common anyway
             for region in regiondata["regions"][fixedp].keys():
                 if not region.startswith("region"):
                     continue
 
-                if region not in wl:
-                    continue
+                #if region not in wl:
+                #    continue
 
-                if region in bl:
-                    continue
+                #if region in bl:
+                #    continue
 
                 #Do the region and mask for the fixed ONCE without adding T because there is no T -----------------------------
 
@@ -204,11 +212,11 @@ if doStep2:
                 adzi=info["filename"].values[0]
                 basename=adzi.replace(".dzi",os.sep+b+os.sep)
                 #find the fixed protein's H
-                fixedPs1=savelocation+basename+region+"_"+stainnames[H]+".png"
+                fixedPs1=savelocation+stainnames[H]+os.sep+fixedp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+region+".png"
                 if(not os.path.isfile(fixedPs1)):
                     print("No region "+fixedPs1)
                 
-                masknamefixed=savelocation+basename+fixedp+region+"_mask.png"
+                masknamefixed=savelocation+basename+fixedp+region+"_"+stainnames[MASK]+".png"
 
                 # <End of fixed p region and mask>---------------------------------------------------------------------------
 
@@ -216,20 +224,20 @@ if doStep2:
                     info=df.loc[(df['case'] == cases[c]) & (df['block'] ==b) & (df['protein'] ==movp)]
                     adzi=info["filename"].values[0]
                     basename=adzi.replace(".dzi",os.sep+b+os.sep)
-                    movingPs1= savelocation+basename+region+"_"+stainnames[H]+".png"
+                    movingPs1= savelocation+stainnames[H]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+region+".png"
                     if(not os.path.isfile(movingPs1)):
                         print("No "+movingPs1)
                         continue
 
                     #find transformation between f and m
                     T=None
+                    
+                    movingPs2=savelocation+stainnames[DAB]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[DAB]+"_"+region+".png"
+                    saveMPs2T=savelocation+stainnames[DAB]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[DAB]+"_"+region+"_T.png"
+                    saveMPs1T=savelocation+stainnames[H]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+region+"_T.png"
 
-                    movingPs2= savelocation+basename+region+"_"+stainnames[DAB]+".png"
-                    saveMPs2T=savelocation+basename+movp+region+"_"+stainnames[DAB]+"_T.png"
-                    saveMPs1T=savelocation+basename+movp+region+"_"+stainnames[H]+"_T.png"
-
-                    masknamemovT=savelocation+basename+movp+region+"_mask_T.png"
-                    masknamemov=savelocation+basename+movp+region+"_mask.png"
+                    masknamemovT=savelocation+stainnames[MASK]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+region+"_T.png"
+                    masknamemov=savelocation+stainnames[MASK]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+region+".png"
 
                     #if trasnformations exist for this, don't run transform.
                     if(os.path.isfile(saveMPs2T) and os.path.isfile(saveMPs1T) and os.path.isfile(masknamemovT)):
@@ -238,7 +246,7 @@ if doStep2:
                         continue
 
                     #For us the best parameters for TMA where these 
-                    transformer=setupTransform.setupTransform(fixedPs1,movingPs1,[32,16,8,4],[15.0,8.0,4.0,2.0],savelocation, \
+                    transformer=st.setupTransform.setupTransform(fixedPs1,movingPs1,[32,16,8,4],[15.0,8.0,4.0,2.0],savelocation, \
                         adjustForAreaDifference,stretchContrast,False,screen=movingPs2)
                     transformer.param_iterations = registrationiterations
                     #If you have masks for your images:
@@ -345,8 +353,8 @@ if doStep3:
                     fstarty=int(regions[fixedp][regk]["_gymin"])//twon
 
                     #load fixedp H and its mask and put in stage. THIS ONES DO NOT HAVE TRANSFORMATION
-                    FPs1T=savelocation+basename+regk+"_"+stainnames[H]+".png"
-                    masknamef=savelocation+basename+fixedp+regk+"_mask.png"
+                    FPs1T=savelocation+stainnames[H]+os.sep+fixedp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+regk+".png"
+                    masknamef=savelocation+stainnames[MASK]+os.sep+fixedp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+regk+".png"
 
                     fixed_H=io.imread(FPs1T)
                     maskf=io.imread(masknamef)
@@ -362,7 +370,7 @@ if doStep3:
                     stageforfixed[myr,mxr]=fixed_H[my,mx]
 
                 print("Saving map of "+fixedp +stainnames[H]+" at "+mapname)
-                logging.info("Saving map of "+movp +stainnames[H]+" at "+mapname)
+                logging.info("Saving map of "+fixedp +stainnames[H]+" at "+mapname)
                 io.imsave(mapname,stageforfixed)
             else:
                 print("Map for H for "+fixedp+" exists at "+mapname)
@@ -393,8 +401,8 @@ if doStep3:
                     fstarty=int(regions[fixedp][regk]["_gymin"])//twon
 
                     #load fixedp H and its mask and put in stage. THIS ONES DO NOT HAVE TRANSFORMATION
-                    FPs2T=savelocation+basename+regk+"_"+stainnames[DAB]+".png"
-                    masknamef=savelocation+basename+fixedp+regk+"_mask.png"
+                    FPs2T=savelocation+stainnames[DAB]+os.sep+fixedp+"_"+str(cases[c])+"_"+b+"_"+stainnames[DAB]+"_"+regk+".png"
+                    masknamef=savelocation+stainnames[MASK]+os.sep+fixedp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+regk+".png"
 
                     fixed_H=io.imread(FPs2T)
                     maskf=io.imread(masknamef)
@@ -411,7 +419,7 @@ if doStep3:
                     stageforfixed[myr,mxr]=fixed_H[my,mx]
 
                 print("Saving map of "+fixedp +stainnames[DAB]+" at "+mapname)
-                logging.info("Saving map of "+movp +stainnames[DAB]+" at "+mapname)
+                logging.info("Saving map of "+fixedp +stainnames[DAB]+" at "+mapname)
                 io.imsave(mapname,stageforfixed)
             else:
                 print("Map for DAB for "+fixedp+" exists at "+mapname)
@@ -453,8 +461,8 @@ if doStep3:
                     basename=movdzipath.replace(".dzi",os.sep+b+os.sep)
 
                     #load movp H_T and its mask_T and put in stage
-                    MPs1T=savelocation+basename+movp+regk+"_"+stainnames[H]+"_T.png"
-                    masknameT=savelocation+basename+movp+regk+"_mask_T.png"
+                    MPs1T=savelocation+stainnames[H]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+regk+".png"
+                    masknameT=savelocation+stainnames[MASK]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+regk+"_T.png"
 
                     movp_H_T=io.imread(MPs1T)
                     mask_T=io.imread(masknameT)
@@ -474,7 +482,7 @@ if doStep3:
                 logging.info("Saving map of "+movp +stainnames[H]+" at "+mapname)
                 io.imsave(mapname,stageformovp)
 
-            #Now for DAB maps
+            #Now for DAB maps of movps
             for movp in movingps:
                 mapname=savelocation+str(cases[c])+"_"+str(b)+"_"+movp+"_map_"+stainnames[DAB]+"_T.png"
                 if(os.path.isfile(mapname)):
@@ -507,8 +515,8 @@ if doStep3:
                     basename=movdzipath.replace(".dzi",os.sep+b+os.sep)
 
                     #load movp H_T and its mask_T and put in stage
-                    MPs2T=savelocation+basename+movp+regk+"_"+stainnames[DAB]+"_T.png"
-                    masknameT=savelocation+basename+movp+regk+"_mask_T.png"
+                    MPs2T=savelocation+stainnames[DAB]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[DAB]+"_"+regk+"_T.png"
+                    masknameT=savelocation+stainnames[MASK]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+regk+"_T.png"
 
                     movp_DAB_T=io.imread(MPs2T)
                     mask_T=io.imread(masknameT)
@@ -527,3 +535,25 @@ if doStep3:
                 print("Saving map of "+movp +stainnames[H]+" at "+mapname)
                 logging.info("Saving map of "+movp +stainnames[H]+" at "+mapname)
                 io.imsave(mapname,stageformovp)
+
+            if (len(movingps) <= 2):
+                #if there is at most 3 proteins invovled then  do the coexp map now
+                stageforcoexpmap=np.zeros((feh,few,3),dtype="uint8")
+                #load fixed p map of DAB
+                fixedDABmapname=savelocation+str(cases[c])+"_"+str(b)+"_"+fixedp+"_map_"+stainnames[DAB]+".png"
+                fixedDABmap=io.imread(fixedDABmapname)
+                stageforcoexpmap[...,1]=fixedDABmap
+                movpssofar=0
+                movpsnames=""
+                for movp in movingps:
+                    movpDABmapname=savelocation+str(cases[c])+"_"+str(b)+"_"+movp+"_map_"+stainnames[DAB]+"_T.png" 
+                    movpDABmap=io.imread(movpDABmapname)
+                    if movpssofar==0:
+                        stageforcoexpmap[...,0]=movpDABmap
+                        movpsnames+="_"+movp
+                    elif movpssofar==1:
+                        stageforcoexpmap[...,2]=movpDABmap
+                        movpsnames+="_"+movp
+                    movpssofar+=1
+
+                io.imsave(savelocation+str(cases[c])+"_"+str(b)+"_"+fixedp+movpsnames+"_co-exp_map_"+stainnames[DAB]+".png",stageforcoexpmap)
