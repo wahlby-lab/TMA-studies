@@ -83,6 +83,7 @@ class TMAQuantifier:
 
     block=""
     corename=""
+    case=""
 
     usetumor=False #tumor segmentation of ilastik
     usemask=False #use mask coming from tissuemaps
