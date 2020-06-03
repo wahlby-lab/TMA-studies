@@ -1,11 +1,11 @@
-from skimage import io, morphology, filters, img_as_float, exposure
+from skimage import io, morphology, img_as_float, exposure
+import skimage.filters as sf
+import skimage.exposure as se
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import imagelibs.coloquantfunctions as tmaq
-import skimage.filters as sf
-import skimage.exposure as se
 
 def trans(z, param_threshold, param_transition, param_power):
     z_rel = (z - param_threshold) / (param_transition+1e-7)
@@ -27,45 +27,40 @@ def smoothystep(po, x):
 
 #what will go into the list in pandas
 dataframe=pd.DataFrame(columns=['block','core','CD44v6pwT','CD44v6pwIH-wIDAB-woT','CD44v6pwIH-wIDAB-wT'])
-mainloc="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/"
-saveexperimentsat="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/m-3-allRoberts/"
-savefigat="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/m-3-allHisto/"
+mainloc="/home/leslie/Documents/TMACOEXP/"
+saveexperimentsat="/home/leslie/Documents/TMACOEXP/experiments/"
+savefigat="/home/leslie/Documents/TMACOEXP/experiments/"
 
 TMAQ=tmaq.TMAQuantifier()
 TMAQ.proteins=["CD44v6", "Ecad"] #the first is the important space
-TMAQ.stains=stains=["H","DAB","mask","Tumor","RGB"]
+TMAQ.stains=["H","DAB","mask","tumor","RGB"]
 TMAQ.morphology=0 #morphology shown by H
 TMAQ.expression=1 #protein expression by DAB
 TMAQ.mask=2; TMAQ.tumor=3; TMAQ.RGB=4
 
-doRoberts=False
+doRoberts=True
 saveimgs=False
 
-pandascsv="allcores.csv"
+pandascsv="/home/leslie/Documents/TMACOEXP/cores_slide2.csv"
 
 df=pd.read_csv(pandascsv)
 
 for idx, row in df.iterrows():
-    b=str(row["TMA_Slide"])
+    c=str(row["TMA_Slide"])
     core=row["Regions"]
-    #print("block" + str(b)+"-"+core)
-    TMAQ.block=str(b)
+    TMAQ.case=str(c)
     TMAQ.corename=core
 
-    TMAQ.imagelocations[("CD44v6", "H")  ]=mainloc+"m-3-allH/"+b+"_"+core+"_H.png"
+    TMAQ.imagelocations[("CD44v6", "H")  ]=mainloc+TMAQ.stains[TMAQ.morphology]+os.sep+"CD44v6_"+c+"_B_"+TMAQ.stains[TMAQ.morphology]+"_"+core+".png"
     if(not os.path.isfile(TMAQ.imagelocations[("CD44v6", "H")])):
-        print("H does not exist for "+b+"_"+core)
+        print("H does not exist for "+c+"_"+core)
         continue
 
-    TMAQ.imagelocations[("CD44v6", "mask") ]=mainloc+"m-3-allMask/CD44v6_"+b+"_"+core+"_mask.png"
-    TMAQ.imagelocations[("CD44v6", "DAB")  ]=mainloc+"m-3-allDAB/"+b+"_"+core+"_DAB.png"
-    TMAQ.imagelocations[("CD44v6", "tumor")  ]=mainloc+"ilastikSegmentation/CD44v6_"+b+"_B_RGB_"+core+"-SimpleSegmentation.png"
-    TMAQ.imagelocations[("CD44v6", "Tumor0")]=mainloc+"LoResSegFromHiREs/CD44v6_"+b+"_"+core+"_mask0.png"
-    TMAQ.imagelocations[("CD44v6", "Tumor1")]=mainloc+"LoResSegFromHiREs/CD44v6_"+b+"_"+core+"_mask1.png"
-    TMAQ.imagelocations[("CD44v6", "Tumor2")]=mainloc+"LoResSegFromHiREs/CD44v6_"+b+"_"+core+"_mask2.png"
-    TMAQ.imagelocations[("CD44v6", "Tumor4")]=mainloc+"LoResSegFromHiREs/CD44v6_"+b+"_"+core+"_mask4.png"
+    TMAQ.imagelocations[("CD44v6", "mask") ]=mainloc+os.sep+TMAQ.stains[TMAQ.mask]+os.sep+"CD44v6_"+c+"_B_"+TMAQ.stains[TMAQ.mask]+"_"+core+".png"
+    TMAQ.imagelocations[("CD44v6", "DAB")  ]=mainloc+os.sep+TMAQ.stains[TMAQ.expression]+os.sep+"CD44v6_"+c+"_B_"+TMAQ.stains[TMAQ.expression]+"_"+core+".png"
+    TMAQ.imagelocations[("CD44v6", "tumor")  ]=mainloc+os.sep+TMAQ.stains[TMAQ.tumor]+"/CD44v6_"+c+"_B_RGB_"+core+"-SimpleSegmentation.png"
   
-    TMAQ.imagelocations[("Ecad"  , "DAB")  ]=mainloc+"ReAlignLoRes/Ecad_"+b+"_"+core+"_DAB_T.png" 
+    TMAQ.imagelocations[("Ecad"  , "DAB")  ]=mainloc+os.sep+TMAQ.stains[TMAQ.expression]+os.sep+"Ecad_"+c+"_B_"+TMAQ.stains[TMAQ.expression]+"_"+core+"_T.png"
     
     
     if(TMAQ.checkExistance()):
@@ -91,18 +86,18 @@ for idx, row in df.iterrows():
         if(saveimgs):            
             roberts*=255.0
             roberts=roberts.astype("uint8")
-            io.imsave(saveexperimentsat+"CD44v6_"+b+"_"+core+"_roberts_gamma_DAB.png",quanthere)
+            io.imsave(saveexperimentsat+"CD44v6_"+c+"_"+core+"_roberts_gamma_DAB.png",quanthere)
 
-    quanthere=trans(quanthere,0.2, 0.15, 1.0)
+    #quanthere=trans(quanthere,0.2, 0.15, 1.0)
     quanthere=quanthere>=.03
 
-    quanthereorig=quanthere*tumor0
+    quanthereorig=quanthere*tumor
     
     p1q=np.sum(quanthereorig)
 
     df.loc[idx,"p1"]=p1q
 
-    #Ecad quantification
+    # Ecad quantification
     
     quanthere2=ecadDAB
     
@@ -127,14 +122,12 @@ for idx, row in df.iterrows():
     
     df.loc[idx,"p2"]=p2q
 
-    sumtumorig=np.sum(tumor)
+    sumtum=np.sum(tumor)
+
+    df.loc[idx,"tumor"]=sumtum
+
+    df.loc[idx,"p1q"]=100*(p1q/sumtum)
+
+    df.loc[idx,"p2q"]=100*(p2q/sumtum)
     
-    sumtum0=np.sum(tumor0)
-
-    df.loc[idx,"tumor"]=sumtumorig
-
-    df.loc[idx,"p1q"]=100*(p1q/sumtum0)
-
-    df.loc[idx,"p2q"]=100*(p2q/sumtum0)
-    
-df.to_csv(mainloc+"N261DAB-oldtumor-noroberts-trans-02-015-1.csv")
+df.to_csv(mainloc+"quantification.csv",index=False)
