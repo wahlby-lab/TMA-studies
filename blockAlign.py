@@ -36,21 +36,15 @@ import datetime
 # 3) put those regions together in a map
 
 doStep1=False
-doStep2=True
+doStep2=False
 doStep3=True
 
 #locations of images, csvs, dzis, jsons
-csvlocation=    "/location/TMA_ECAD_only.csv"
-jsonlocation=   "/location/"
-pyramidlocation="/location/"
-savelocation=   "/location/tosaveat/"
-colorprofilelocation="/location/colorProfiles/" 
-
-csvlocation=    "/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/2B/TMA_CD44v6_ECAD.csv"
-jsonlocation=   "/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/2B/"
-pyramidlocation="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/pyramidsCase2/"
-savelocation=   "/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/exampleTMAstudies/"
-colorprofilelocation="/home/leslie/Documents/Uppsala/portugalDataset/carla/TMAProcessing/2B/colorprofiles/" 
+csvlocation=    "/home/leslie/Documents/TMACOEXP/TMA_CD44v6_ECAD.csv"
+jsonlocation=   "/home/leslie/Documents/TMACOEXP/"
+pyramidlocation="/home/leslie/Documents/TMACOEXP/"
+savelocation=   "/home/leslie/Documents/TMACOEXP/"
+colorprofilelocation="/home/leslie/Documents/TMACOEXP/colorProfiles/" 
 
 #work with n levels below the maximum meaning dividing by 2, n number of times
 desiredlevel=3
@@ -59,7 +53,7 @@ H=0; DAB=1; RGB=2; MASK=3
 stainnames=["H","DAB","RGB","mask"]
 savethesestains=[0,1,2,3]
 #need white balance?
-whitebalance=True
+whitebalance=False
 
 #overwrite the images? 
 overwrite=False
@@ -79,9 +73,9 @@ stringdate=now.strftime("%Y-%m-%d-%H-%M-%S")
 logging.basicConfig(filename=savelocation+stringdate+'.log',level=logging.DEBUG) 
 logging.info('Log for '+csvlocation)
 
-# -------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 1) Do color separation and create the regions based on the info in the csv and json and dzis
-# -------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #Read CSV organize by code and then by block
 df = pd.read_csv(csvlocation)
@@ -118,7 +112,6 @@ if doStep1:
                 acase=row["case"]; ablock=row["block"]
                 aprotein=row["protein"]; adzi=row["filename"]; ajson=row["jsonname"]
 
-
                 print("acase,ablock,aprotein,adzi,ajson")
                 print(acase,ablock,aprotein,adzi,ajson)
 
@@ -152,9 +145,9 @@ if doStep1:
                             
     print("Region creation process finished")
 
-# -------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 2) register the regions created
-# -------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 if doStep2:
     #now all the image regions are created, find the transformations
     for c in range(len(cases)):
@@ -192,19 +185,10 @@ if doStep2:
 
             transformations={}
 
-            #temp whitelist
-            #wl=[""]
-            #bl=[""]
-            #loop thorugh regions which are common anyway
+            #loop thorugh regions which are common 
             for region in regiondata["regions"][fixedp].keys():
                 if not region.startswith("region"):
                     continue
-
-                #if region not in wl:
-                #    continue
-
-                #if region in bl:
-                #    continue
 
                 #Do the region and mask for the fixed ONCE without adding T because there is no T -----------------------------
 
@@ -253,7 +237,7 @@ if doStep2:
                     #transformer.maskRef=None#masknamefixed
                     #transformer.maskFlo=None#savelocation+basename+movp+region+"_mask.png"
                     transformer.param_report_freq=registrationiterations
-                    T=transformer.doRegistration()
+                    T=transformer.doRegistration() #call alphaAMD
 
                     if T is None:
                         print("Error in do registration for region "+region+", protein "+movp)
@@ -274,9 +258,9 @@ if doStep2:
 
     print("Region alignment process finished")
 
-# -------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 3) put those regions together in a map
-# -------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 if doStep3:
     # load regions from json, create a stage for all the regions, of size maxlevel-desiredlevel, 
     # load the regions and put them in the right place, by taking the coordinates 
@@ -337,7 +321,7 @@ if doStep3:
             mapname=savelocation+str(cases[c])+"_"+str(b)+"_"+fixedp+"_map_"+stainnames[H]+".png"
                 
             if(not os.path.isfile(mapname)):
-                 #create new stage for this protein:
+                #create new stage for this protein:
                 stageforfixed=np.zeros((feh,few),dtype="uint8")
 
                 #regions data exists in local variable "regions" 
@@ -454,14 +438,14 @@ if doStep3:
                     movdzipath=movpinfo["filename"].unique().tolist()[0]
                     movdzifile=pyramidlocation+movdzipath
 
-                    #location in fixed:
+                    #location in FIXED:
                     fstartx=int(regions[fixedp][regk]["_gxmin"])//twon
                     fstarty=int(regions[fixedp][regk]["_gymin"])//twon
 
                     basename=movdzipath.replace(".dzi",os.sep+b+os.sep)
 
                     #load movp H_T and its mask_T and put in stage
-                    MPs1T=savelocation+stainnames[H]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+regk+".png"
+                    MPs1T=savelocation+stainnames[H]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[H]+"_"+regk+"_T.png"
                     masknameT=savelocation+stainnames[MASK]+os.sep+movp+"_"+str(cases[c])+"_"+b+"_"+stainnames[MASK]+"_"+regk+"_T.png"
 
                     movp_H_T=io.imread(MPs1T)
