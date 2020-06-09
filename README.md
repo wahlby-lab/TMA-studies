@@ -12,6 +12,48 @@ In this repository we cover the following topics:
 | Image analysis | Software               |
 
 
+## Video tutorials
+
+We have designed an example for setting up your own TissUUmaps. The videos also comment on the general aspects of the design of TissUUmaps.
+
+<table>
+    <tr>
+        <td width="50%">
+            <a href="https://tissuumaps.research.it.uu.se/TMA-studies/">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/videoAbstract.png" />
+            </a>
+        </td>        
+        <td width="50%">
+             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-intro">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track1.png" />
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Quant.png">
+           </a>
+        </td>        
+        <td>
+             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Tumor.png">
+           </a>
+        </td>
+    </tr>
+     <tr>
+        <td>
+           <a href="https://tissuumaps.research.it.uu.se/howto.html#section-setup">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/SetupTM-BCS.png">
+           </a>
+        </td>        
+        <td width="50%">
+        </td>
+    </tr>
+    
+</table>
+
+
 TissUUmaps
 ----------
 
