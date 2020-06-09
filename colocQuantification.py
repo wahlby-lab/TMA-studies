@@ -139,8 +139,6 @@ for idx, row in df.iterrows():
             robertsint=robertsint.astype("uint8")
             io.imsave(saveimat+"Ecad_Roberts_"+c+"_"+core+".png",robertsint)
 
-    #quanthere2=trans(quanthere2,0.2, 0.15, 1.0)
-
     quanthere2=quanthere2>=.03
     
     quanthereEorig=quanthere2*tumor
@@ -204,14 +202,5 @@ for idx, row in df.iterrows():
         df.loc[idx,"coloc"]=onlycomb/amountoftumor0
         df.loc[idx,"extra_tissue"]=1.0-onlyCD44v6/amountoftumor0-onlyEcad/amountoftumor0-onlycomb/amountoftumor0
         df.loc[idx,"amountTumour"]=amountoftumor0
-    else:
-        #little to no tumorreport zeroes all over because even if there is protein there is no tumor.
-        df.loc['CD44v6_p']=0
-        df.loc['Ecad_p']=0,
-        df.loc['free_CD44v6_p']= 0
-        df.loc['free_Ecad_p']=0,
-        df.loc['coloc']=0
-        df.loc['extra_tissue']=0
-        df.loc['amountTumour']= amountoftumor0
     
 df.to_csv(mainloc+"quantification.csv")
