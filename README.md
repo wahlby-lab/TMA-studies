@@ -14,8 +14,9 @@ In this project we cover the following topics:
 
 ## Explanation and video tutorials
 
-We have designed an example for setting up your own TissUUmaps. The videos also comment on the general aspects of the design of TissUUmaps.
-For insight on the usage of the code see the following sections. This is not an end-to-end software but rather a collection of scripts that require a basic setup of data. We include inside this project some libraries, like [Alpha-AMD](https://github.com/MIDA-group/py_alpha_amd_release) for registration and our utility functions to deal with DZI tiled images and perform unmixing and other preprocessing operations. We also provide 2 DZI pyramids if you want to try out this code. See the data section.
+For insight on the usage of the code see the following sections. This is not an end-to-end software but rather a collection of scripts that require a basic setup of data. We include inside this project some libraries, like [Alpha-AMD](https://github.com/MIDA-group/py_alpha_amd_release) for registration and our utility functions to deal with DZI tiled images and perform unmixing and other preprocessing operations. We also provide 2 DZI pyramids if you want to try out this code. See the data section. We have created explanatory videos. You can see out video abstract and 3 videos showing different aspects of running the code and observing the results.
+
+If you want to try this and have a similar question, don't hesitate to contact us at the [Bioimage informatics national facility at SciLifLab (Sweden)](https://www.scilifelab.se/facilities/bioimage-informatics/)
 
 <table>
     <tr>
