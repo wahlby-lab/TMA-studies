@@ -19,28 +19,26 @@ For insight on the usage of the code see the following sections. This is not an 
 
 <table>
     <tr>
-        <td width="50%">
+        <td width="25%">
             <a href="https://tissuumaps.research.it.uu.se/TMA-studies/">
             <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/videoAbstract.png" />
             </a>
         </td>        
-        <td width="50%">
+        <td width="25%">
              <a href="https://tissuumaps.research.it.uu.se/howto.html#section-intro">
             <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track1.png" />
             </a>
         </td>
-    </tr>
-    <tr>
-        <td>
-             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
-            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Quant.png">
-           </a>
-        </td>        
-        <td>
+        <td width="25%">
              <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
             <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Tumor.png">
            </a>
-        </td>
+        </td> 
+        <td width="25%">
+             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Quant.png">
+           </a>
+        </td> 
     </tr>    
 </table>
 
@@ -114,7 +112,7 @@ Steps for using the code
 <table>
     <tr>
         <td width="65%">
-            <p>To start, follow these instructions, there is no need to go over all the repository, just start here and if you want, watch the video:</p>
+            <p>To start, we refer to this part as track 1. Follow these instructions, there is no need to go over all the repository. Just start here and, if you want, watch the video:</p>
             <p>The file <a href="https://github.com/wahlby-lab/TMA-studies/blob/master/blockAlign.py">blockAlign.py</a> runs 3 steps:</p>
             <ul>
                 <li>Color unmixing </li>
@@ -129,6 +127,7 @@ Steps for using the code
                 <li>The location where everything will be saved</li>
                 <li>The location (if any) of a palette for the colors you want to unmix (one per stain) If no location is given, we use a default color for H and one for DAB </li>
                 <li>Resolution level</li>
+            </ul>
         </td>       
         <td width="35%">
              <a href="https://tissuumaps.research.it.uu.se/howto.html#section-intro">
@@ -138,18 +137,40 @@ Steps for using the code
     </tr>    
 </table>
 
-Step 1 - Unmixing
------------------
-In this first step the program will go through the JSON file, finding the regions (cores) in every slide and creating an individual RGB image of the cores. These images will be unmixed with the information available, either a palette or default values. The images will be saved. This step also creates a binary mask that will inform the next step on where to find the information to find the transformations
+Track 2 - Additional steps
+--------------------------
 
-Step 2 - Registration
----------------------
-In this second step, we use the H stain which is common to pairs of cores, to find the alignment. If step 1 ran succesfully, then we have the H images of each core so we give them to [py_alpha-AMD](https://github.com/MIDA-group/py_alpha_amd_release) to find the registration. This is the only registration framework that combines spatial and intensity information making it ideal for this purpose. The transformation T is applied and serialized for possible future use.
-Once T is found, H and DAB images are transformed and saved.
+### Tumor segmentation
 
-Step 3 - Wrapping up
---------------------
-Once the individual cores have been transformed, they can be arranged back in the same position as the original TMA and we can create a Co-expression map of the proteins and an H colocalizaiton map to verify the transformations T. This step is not fully necessary. The images can be created separately and inspected. For this you cna use [combineImages.py](https://github.com/wahlby-lab/TMA-studies/blob/master/combineImages.py)
+<table>
+    <tr>
+        <td width="65%">
+            <p>This track continues after everything has run in track 1. Sometimes, to solve the question, you need to perform tumor segmentation. We use Random Forests to do so. In here you will find a handy notebook to perform image segmentation based on sparse annotations. In our case, an expert pathologist marked several cores from the whole experiment to mark areas with tumor, non-tumor and background. These images (i.e. sparse seeds, masks, annotations) allow us to determine where to find distinctive features under them.</p>
+            <p>To use the notebook go to the <a href="https://github.com/wahlby-lab/TMA-studies/blob/master/RandomForestTMmaster.ipynb">RandomForestTMmaster.ipynb</a> notebook. To understand more about this process, watch the video</p>
+        </td>       
+        <td width="35%">
+             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Tumor.png">
+           </a>
+        </td>
+    </tr>    
+</table>
 
+### Co-expression quantification
 
+<table>
+    <tr>
+        <td width="65%">
+            <p>After having a visual way of determining co-expression in cores in the maps we obtain in track 1. We might want to quantify the co-expression. Such quantification can be related to clinical data or become evidence for interesting unstudied relationships.</p>
+            <p>To quantify using this implementation of the pipeline you need to have all the data mentioned before and have run all track 1 and tumor segmentation.</p>
+            <p>The file  <a href="https://github.com/wahlby-lab/TMA-studies/blob/master/colocQuantification.py">colocQuantification.py</a> is the one we use for this purpose.</p>
+            <p>Here we will study the specific locations of shared pieces of tissue and within tumor segmentation to quantify co-expression. </p>
+        </td>       
+        <td width="35%">
+             <a href="https://tissuumaps.research.it.uu.se/howto.html#section-using">
+            <img src="https://tissuumaps.research.it.uu.se/media/images/posters/TMA-studies/Track2-Quant.png">
+           </a>
+        </td> 
+    </tr>    
+</table>
 
