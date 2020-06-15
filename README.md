@@ -12,10 +12,10 @@ In this project we cover the following topics:
 | Image analysis | Software               |
 
 
-## Video tutorials
+## Explanation and video tutorials
 
 We have designed an example for setting up your own TissUUmaps. The videos also comment on the general aspects of the design of TissUUmaps.
-For insight on the usage of the code see the following sections. This is not an end-to-end software but rather a collection of scripts that require a basic setup of data. We include inside this project some libraries, like [Alpha-AMD](https://github.com/MIDA-group/py_alpha_amd_release) for registration and our utility functions to deal with DZI tiled images and perform unmixing and other preprocessing operations,
+For insight on the usage of the code see the following sections. This is not an end-to-end software but rather a collection of scripts that require a basic setup of data. We include inside this project some libraries, like [Alpha-AMD](https://github.com/MIDA-group/py_alpha_amd_release) for registration and our utility functions to deal with DZI tiled images and perform unmixing and other preprocessing operations. We also provide 2 DZI pyramids if you want to try out this code. See the data section.
 
 <table>
     <tr>
@@ -42,8 +42,8 @@ For insight on the usage of the code see the following sections. This is not an 
     </tr>    
 </table>
 
-Basic data setup
-----------
+## Basic data setup
+
 
 ### DZI pyramids
 For this specific implementation of our methodology, you need to have the TMA slides as DZI pyramids. Cores should be annotated and there needs to be a simple text configuration file to know which slides should be processed and where information must be found.
@@ -107,7 +107,7 @@ To annotate the cores we use our own interface available in this repository in [
 ![JSON and CSV formats](https://github.com/wahlby-lab/TMA-studies/blob/master/misc/JSON-CSV-example.jpg)
 
 Steps for using the code
-==========================
+========================
 
 <table>
     <tr>
@@ -137,8 +137,8 @@ Steps for using the code
     </tr>    
 </table>
 
-Track 2 - Additional steps
---------------------------
+## Track 2 - Additional steps
+
 
 ### Tumor segmentation
 
@@ -174,3 +174,26 @@ Track 2 - Additional steps
     </tr>    
 </table>
 
+Data
+==========================
+
+We provide two DZi pyramids and the annotated cores in json format, in case you want to try out the pipeline (the links take you to our website first):
+<table>
+    <tr>
+        <td width="35%">
+            <a href="../tissuudata/TMA/CD44v6_2B.7z"><img src="https://tissuumaps.research.it.uu.se//media/images/misc/TMA-studies/CD44v6dzismall.png" width="260px" alt="">
+            </a><h5><a href="https://tissuumaps.research.it.uu.se/TMA-studies/#section-data">CD44v6 slide 2B
+            </a></h5>
+        </td>       
+        <td width="35%">
+             <a href="../tissuudata/TMA/Ecad_2B.7z"><img src="https://tissuumaps.research.it.uu.se/media/images/misc/TMA-studies/Ecaddzismall.png" width="260px" alt="">
+                  </a><h5><a href="https://tissuumaps.research.it.uu.se/TMA-studies/#section-data">Ecad slide 2B
+                </a></h5>
+        </td> 
+        <td width="35%">
+             <a href="https://tissuumaps.research.it.uu.se/TMA-studies/#section-data"><img src="https://tissuumaps.research.it.uu.se/media/images/misc/TMA-studies/annotatedTMA.png" width="260px" alt="" />
+                  <h5>Annotated cores in both slides
+                </a></h5>
+        </td> 
+    </tr>    
+</table>
